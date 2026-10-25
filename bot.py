@@ -195,7 +195,7 @@ async def help_command(update, context):
     await update.message.reply_text("""<b>盛世豪莱尔机器人 V2 使用说明</b>
 
 <b>成员功能</b>
-<code>/checkin</code> 每日签到；<code>/points</code> 我的积分；<code>/rank</code> 本周榜
+<code>/checkin</code> 每日签到（也可直接发送“签到”）；<code>/points</code> 我的积分；<code>/rank</code> 本周榜
 <code>/rank month</code> 月榜；<code>/rank total</code> 总榜
 
 <b>抽奖（管理员）</b>
@@ -513,6 +513,7 @@ def main():
     app.add_handler(CallbackQueryHandler(rank_callback, pattern=r"^rank:(week|month|total)$"))
     app.add_handler(CallbackQueryHandler(menu_callback, pattern=r"^menu:"))
     app.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, on_new_members))
+    app.add_handler(MessageHandler(filters.Regex(r"^\s*(签到|每日签到)\s*$"), checkin))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, moderate_text))
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
