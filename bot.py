@@ -311,7 +311,7 @@ async def checkin(update, context):
 
 
 async def rank_command(update, context):
-    raw = context.args[0].lower() if context.args else "week"
+    raw = context.args[0].lower() if getattr(context, "args", None) else "week"
     period = {"week":"week", "month":"month", "total":"total", "周":"week", "月":"month", "总":"total"}.get(raw, "week")
     await update.message.reply_text(ranking_text(update.effective_chat.id, period), parse_mode="HTML", reply_markup=rank_keyboard())
 
@@ -516,6 +516,8 @@ def main():
     app.add_handler(CallbackQueryHandler(menu_callback, pattern=r"^menu:"))
     app.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, on_new_members))
     app.add_handler(MessageHandler(filters.Regex(r"^\s*(签到|每日签到)\s*$"), checkin))
+    app.add_handler(MessageHandler(filters.Regex(r"^\s*(积分|我的积分)\s*$"), points_command))
+    app.add_handler(MessageHandler(filters.Regex(r"^\s*(积分榜|排行榜)\s*$"), rank_command))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, moderate_text))
     app.run_polling(allowed_updates=Update.ALL_TYPES)
 
