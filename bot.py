@@ -358,7 +358,7 @@ async def welcome_setting(update, context):
 async def set_welcome(update, context):
     chat = update.effective_chat; text = update.message.text.partition(" ")[2].strip()
     if chat.type == "private" or not await is_admin(chat, update.effective_user.id) or not text:
-        await update.message.reply_text("用法：由管理员发送 /setwelcome 欢迎 {name}"); return
+        await update.message.reply_text("用法：由管理员发送 /setwelcome 欢迎 {username}"); return
     ensure_settings(chat.id)
     with closing(db()) as conn:
         conn.execute("UPDATE settings SET welcome_text=? WHERE chat_id=?", (text, chat.id)); conn.commit()
@@ -423,7 +423,9 @@ async def on_new_members(update, context):
     if settings and settings["welcome_enabled"]:
         for user in update.message.new_chat_members:
             if not user.is_bot:
-                upsert_member(chat.id, user); await update.message.reply_text(settings["welcome_text"].replace("{name}", user.full_name))
+                display_name = f"@{user.username}" if user.username else user.full_name
+                welcome = settings["welcome_text"].replace("{username}", display_name).replace("{name}", user.full_name)
+                upsert_member(chat.id, user); await update.message.reply_text(welcome)
 
 
 def may_award(chat_id, user_id, settings):
